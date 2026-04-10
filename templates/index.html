@@ -1,92 +1,129 @@
-<!-- templates/index.html -->
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Healthcare Cost Predictor</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        body {
-            padding: 30px;
-            background-color: #f8f9fa;
-        }
-        .prediction-container {
-            margin-top: 20px;
-            padding: 15px;
-            background-color: #e9ecef;
-            border-radius: 5px;
-        }
-    </style>
+  <title>Healthcare Cost Predictor</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f7fa; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 2rem 1rem; }
+    .card { background: #ffffff; border-radius: 16px; border: 1px solid #e8eaed; padding: 2rem; width: 100%; max-width: 600px; }
+    .header { display: flex; align-items: center; gap: 12px; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid #f0f0f0; }
+    .icon { width: 44px; height: 44px; border-radius: 10px; background: #e1f5ee; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .icon svg { width: 22px; height: 22px; stroke: #1D9E75; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+    h1 { font-size: 18px; font-weight: 600; color: #1a1a1a; }
+    .subtitle { font-size: 13px; color: #888; margin-top: 2px; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
+    .field { display: flex; flex-direction: column; gap: 6px; }
+    label { font-size: 13px; font-weight: 500; color: #555; }
+    input, select { width: 100%; padding: 9px 12px; border: 1px solid #dde1e7; border-radius: 8px; font-size: 14px; color: #1a1a1a; background: #fff; outline: none; transition: border-color 0.2s; }
+    input:focus, select:focus { border-color: #1D9E75; box-shadow: 0 0 0 3px rgba(29,158,117,0.08); }
+    .btn { width: 100%; margin-top: 1rem; padding: 11px; font-size: 15px; font-weight: 600; background: #1D9E75; color: #fff; border: none; border-radius: 10px; cursor: pointer; transition: background 0.2s; }
+    .btn:hover { background: #0F6E56; }
+    .result { margin-top: 1.25rem; background: #f8fffe; border: 1px solid #b2e8d4; border-radius: 12px; padding: 1.25rem; }
+    .result-label { font-size: 12px; color: #888; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px; }
+    .result-amount { font-size: 32px; font-weight: 700; color: #0F6E56; }
+    .result-note { font-size: 12px; color: #aaa; margin-top: 6px; }
+    .divider { height: 1px; background: #e8f5f0; margin: 1rem 0; }
+    .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+    .stat { background: #f0faf5; border-radius: 8px; padding: 10px 12px; }
+    .stat-label { font-size: 11px; color: #888; margin-bottom: 3px; }
+    .stat-val { font-size: 14px; font-weight: 600; color: #1a1a1a; }
+    .badge { display: inline-block; font-size: 12px; font-weight: 500; padding: 3px 10px; border-radius: 99px; margin-left: 10px; vertical-align: middle; }
+    .badge-low { background: #e1f5ee; color: #0F6E56; }
+    .badge-mid { background: #fef3cd; color: #856404; }
+    .badge-high { background: #fde8e8; color: #a32d2d; }
+    .error { margin-top: 1rem; background: #fde8e8; border: 1px solid #f5c6c6; border-radius: 10px; padding: 1rem 1.25rem; color: #a32d2d; font-size: 14px; }
+    @media (max-width: 480px) { .grid { grid-template-columns: 1fr; } .stats { grid-template-columns: 1fr 1fr; } }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <h1 class="mb-4 text-center">Healthcare Cost Predictor</h1>
-        
-        <div class="row justify-content-center">
-            <div class="col-md-8">
-                <div class="card">
-                    <div class="card-header">
-                        Enter Patient Information
-                    </div>
-                    <div class="card-body">
-                        <form action="{{ url_for('predict') }}" method="post">
-                            <div class="row mb-3">
-                                <div class="col-md-6">
-                                    <label for="age" class="form-label">Age</label>
-                                    <input type="number" class="form-control" id="age" name="age" required min="0" max="100">
-                                </div>
-                                <div class="col-md-6">
-                                    <label for="sex" class="form-label">Sex</label>
-                                    <select class="form-select" id="sex" name="sex" required>
-                                        <option value="male">Male</option>
-                                        <option value="female">Female</option>
-                                    </select>
-                                </div>
-                            </div>
-                            
-                            <div class="row mb-3">
-                                <div class="col-md-6">
-                                    <label for="bmi" class="form-label">BMI</label>
-                                    <input type="number" step="0.1" class="form-control" id="bmi" name="bmi" required min="10" max="50">
-                                </div>
-                                <div class="col-md-6">
-                                    <label for="children" class="form-label">Children</label>
-                                    <input type="number" class="form-control" id="children" name="children" required min="0" max="10">
-                                </div>
-                            </div>
-                            
-                            <div class="row mb-3">
-                                <div class="col-md-6">
-                                    <label for="smoker" class="form-label">Smoker</label>
-                                    <select class="form-select" id="smoker" name="smoker" required>
-                                        <option value="no">No</option>
-                                        <option value="yes">Yes</option>
-                                    </select>
-                                </div>
-                                <div class="col-md-6">
-                                    <label for="region" class="form-label">Region</label>
-                                    <select class="form-select" id="region" name="region" required>
-                                        <option value="northeast">Northeast</option>
-                                        <option value="northwest">Northwest</option>
-                                        <option value="southeast">Southeast</option>
-                                        <option value="southwest">Southwest</option>
-                                    </select>
-                                </div>
-                            </div>
-                            
-                            <div class="d-grid">
-                                <button type="submit" class="btn btn-primary">Predict Cost</button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-                
-                {% if prediction_text %}
-                <div class="prediction-container mt-4 text-center">
-                    <h3>{{ prediction_text }}</h3>
-                </div>
-                {% endif %}
-            </div>
-        </div>
+  <div class="card">
+    <div class="header">
+      <div class="icon">
+        <svg viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+      </div>
+      <div>
+        <h1>Healthcare Cost Predictor</h1>
+        <div class="subtitle">Estimate your insurance charges using machine learning</div>
+      </div>
     </div>
+
+    <form action="{{ url_for('predict') }}" method="post">
+      <div class="grid">
+        <div class="field">
+          <label for="age">Age</label>
+          <input type="number" id="age" name="age" placeholder="e.g. 35" required min="0" max="100">
+        </div>
+        <div class="field">
+          <label for="sex">Biological sex</label>
+          <select id="sex" name="sex" required>
+            <option value="male">Male</option>
+            <option value="female">Female</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="grid">
+        <div class="field">
+          <label for="bmi">BMI</label>
+          <input type="number" step="0.1" id="bmi" name="bmi" placeholder="e.g. 24.5" required min="10" max="50">
+        </div>
+        <div class="field">
+          <label for="children">Number of children</label>
+          <input type="number" id="children" name="children" placeholder="e.g. 2" required min="0" max="10">
+        </div>
+      </div>
+
+      <div class="grid">
+        <div class="field">
+          <label for="smoker">Smoker?</label>
+          <select id="smoker" name="smoker" required>
+            <option value="no">No</option>
+            <option value="yes">Yes</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="region">Region</label>
+          <select id="region" name="region" required>
+            <option value="northeast">Northeast</option>
+            <option value="northwest">Northwest</option>
+            <option value="southeast">Southeast</option>
+            <option value="southwest">Southwest</option>
+          </select>
+        </div>
+      </div>
+
+      <button type="submit" class="btn">Calculate estimated cost</button>
+    </form>
+
+    {% if prediction_text %}
+      {% if 'Error' in prediction_text %}
+        <div class="error">{{ prediction_text }}</div>
+      {% else %}
+        <div class="result">
+          <div class="result-label">Estimated annual healthcare charges</div>
+          <div>
+            <span class="result-amount">{{ prediction_text.replace('Estimated Healthcare Charges: ', '') }}</span>
+          </div>
+          <div class="result-note">Based on XGBoost ML model trained on US insurance data</div>
+          <div class="divider"></div>
+          <div class="stats">
+            <div class="stat">
+              <div class="stat-label">Model</div>
+              <div class="stat-val">XGBoost</div>
+            </div>
+            <div class="stat">
+              <div class="stat-label">Input features</div>
+              <div class="stat-val">6 variables</div>
+            </div>
+            <div class="stat">
+              <div class="stat-label">Deployed on</div>
+              <div class="stat-val">Docker</div>
+            </div>
+          </div>
+        </div>
+      {% endif %}
+    {% endif %}
+  </div>
 </body>
 </html>
